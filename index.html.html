@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="rw">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BY AGASOBANUYE DAY</title>
+<style>
+  body {
+    margin: 0; font-family: Arial, sans-serif; background: #0f0f0f; color: #fff;
+  }
+  header, footer {
+    background: #111; padding: 20px; text-align: center;
+  }
+  .brand-flex {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+  }
+  .brand-flex img {
+    height: 56px;
+    width: 56px;
+    object-fit: contain;
+    vertical-align: middle;
+    background: #fff;
+    border-radius: 50%;
+    padding: 2px;
+  }
+  .brand-flex h1 {
+    margin: 0;
+    font-size: 2.2em;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: #fff;
+  }
+  nav a {
+    margin: 0 15px; color: #ff5500; text-decoration: none; cursor: pointer;
+  }
+  nav a:hover { text-decoration: underline; }
+  .section {
+    padding: 40px 20px;
+  }
+  .grid {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;
+  }
+  .card {
+    background: #1a1a1a; border-radius: 10px; padding: 10px; text-align: center;
+    width: 280px; cursor: pointer; position: relative;
+  }
+  .card img {
+    width: 100%; border-radius: 5px;
+  }
+  .delete-btn {
+    display: none;
+    position: absolute;
+    top: 7px; right: 7px;
+    background: #e04e00; color: #fff; border: none;
+    border-radius: 50%; width: 32px; height: 32px; font-size: 18px;
+    cursor: pointer; z-index: 2;
+  }
+  .card.admin .delete-btn { display: block; }
+  input, button, select {
+    display: block; margin: 10px auto; padding: 10px; width: 80%;
+    border-radius: 5px; border: none;
+  }
+  input, select {
+    font-size: 16px;
+  }
+  button {
+    background: #ff5500; color: white; font-weight: bold; cursor: pointer;
+  }
+  button:hover {
+    background: #e04e00;
+  }
+  .popup {
+    position: fixed; top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.85);
+    display: none; justify-content: center; align-items: center;
+    flex-direction: column; z-index: 1000;
+    padding: 20px;
+  }
+  .popup-content {
+    background: #222; padding: 20px; border-radius: 10px; max-width: 400px;
+    width: 100%; text-align: center;
+  }
+  .close-btn {
+    background: #555; margin-top: 15px;
+  }
+  video {
+    width: 100%; border-radius: 10px;
+  }
+  table {
+    width: 90%; margin: 20px auto; border-collapse: collapse; color: white;
+  }
+  th, td {
+    border: 1px solid #444; padding: 8px; text-align: center;
+  }
+  th {
+    background: #222;
+  }
+  #upload-section {
+    display: none;
+    max-width: 400px; margin: 0 auto;
+  }
+  #paymentPopup button {
+    width: auto; margin: 5px;
+  }
+  .admin-upload-btns {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand-flex">
+    <img src="logo.png" alt="BY AGASOBANUYE DAY Logo"/>
+    <h1>BY AGASOBANUYE DAY</h1>
+  </div>
+  <nav id="navMenu">
+    <a onclick="showSection('home')">Ahabanza</a>
+    <a onclick="showSection('trending')">Ibikunzwe</a>
+    <a onclick="showSection('series')">Ibyerekeye Series</a>
+    <a onclick="showSection('movies')">Filime</a>
+    <a id="adminNav" style="display:none;" onclick="showSection('admin')">Admin</a>
+    <a id="loginNav" onclick="openAuthPopup('signin')">Injira</a>
+    <a id="logoutNav" style="display:none;" onclick="logout()">Sohoka</a>
+  </nav>
+</header>
+
+<section id="home" class="section">
+  <h2>Murakaza Neza kuri BY AGASOBANUYE DAY</h2>
+  <p style="text-align:center;">Filime na Series ku giciro gito. Injira kandi wishure kugirango urebe!</p>
+  <div id="homeVideos" class="grid"></div>
+</section>
+
+<section id="trending" class="section" style="display:none;">
+  <h2>Ibikunzwe</h2>
+  <div id="trendingVideos" class="grid"></div>
+</section>
+
+<section id="series" class="section" style="display:none;">
+  <div class="admin-upload-btns">
+    <button id="addSeriesBtn" style="display:none;" onclick="showUploadForm('series')">Ongeraho Series</button>
+  </div>
+  <h2>Series - Squid Game Season 3</h2>
+  <div id="seriesList" class="grid"></div>
+</section>
+
+<section id="movies" class="section" style="display:none;">
+  <div class="admin-upload-btns">
+    <button id="addMoviesBtn" style="display:none;" onclick="showUploadForm('movies')">Ongeraho Filime</button>
+  </div>
+  <h2>Filime</h2>
+  <div id="movieList" class="grid"></div>
+</section>
+
+<section id="admin" class="section" style="display:none;">
+  <h2>Agace ka Admin</h2>
+
+  <div id="upload-section">
+    <h3>Ongeraho Video</h3>
+    <select id="upload-section-select">
+      <option value="series">Series</option>
+      <option value="movies">Filime</option>
+      <option value="trending">Ibikunzwe</option>
+    </select>
+    <input id="upload-title" placeholder="Umutwe wa Video" />
+    <input id="upload-video-url" placeholder="Video URL (MP4)" />
+    <input id="upload-thumbnail" placeholder="Thumbnail URL" />
+    <button onclick="uploadVideo()">Ongeraho</button>
+    <button class="close-btn" onclick="hideUploadForm()">Funga</button>
+    <hr />
+  </div>
+
+  <h3>Abategereje Kwemezwa ko bishyuye</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Email</th>
+        <th>Izina rya User</th>
+        <th>Uko yishyureye (Plan)</th>
+        <th>Igikorwa</th>
+      </tr>
+    </thead>
+    <tbody id="pendingApprovalsTableBody"></tbody>
+  </table>
+
+  <h3>Abemerewe Kureba</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Email</th>
+        <th>Izina rya User</th>
+        <th>Plan</th>
+        <th>Igihe Bizarangirira</th>
+      </tr>
+    </thead>
+    <tbody id="paidUsersTableBody"></tbody>
+  </table>
+</section>
+
+<!-- VIDEO POPUP -->
+<div id="videoPopup" class="popup" style="display:none;">
+  <div class="popup-content">
+    <video id="videoPlayer" controls autoplay></video>
+    <button class="close-btn" onclick="closeVideo()">Funga</button>
+  </div>
+</div>
+
+<!-- AUTH POPUP -->
+<div id="authPopup" class="popup">
+  <div class="popup-content">
+    <h2 id="authTitle">Injira</h2>
+    <input type="text" id="auth-username" placeholder="Izina ryawe" />
+    <input type="email" id="auth-email" placeholder="Email" />
+    <input type="password" id="auth-password" placeholder="Ijambo ry'ibanga" />
+    <button id="authSubmitBtn" onclick="submitAuth()">Emeza</button>
+    <p id="authSwitchText" style="margin-top: 15px; cursor:pointer; color:#ff5500;" onclick="toggleAuthMode()">Nta konti ufite? Iyandikishe</p>
+    <button class="close-btn" onclick="closeAuth()">Hagarika</button>
+  </div>
+</div>
+
+<!-- PAYMENT POPUP -->
+<div id="paymentPopup" class="popup">
+  <div class="popup-content" style="max-width:400px;">
+    <h2>Ugomba Kwishyura</h2>
+    <p>Ugomba kwishyura kugira ngo urebe iyi video.</p>
+    <p>Ohereza Mobile Money kuri izi nimero:</p>
+    <p>MTN MoMo: <strong>0799395838</strong></p>
+    <p>Airtel Money: <strong>0722461585</strong></p>
+    <p id="paymentInstruction">Hitamo uburyo bwo kwishyura hepfo urebe amabwiriza.</p>
+    <button onclick="showPaymentInstructions('weekly')">Icyumweru - 1,500 RWF</button>
+    <button onclick="showPaymentInstructions('monthly')">Ukwezi - 4,000 RWF</button>
+    <button id="confirmPaymentBtn" style="display:none;" onclick="confirmPayment()">Emeza ko wishyuye</button>
+    <button class="close-btn" onclick="closePayment()">Hagarika</button>
+  </div>
+</div>
+
+<footer>
+  <p>Twandikire: +250 0790 723 928</p>
+  <p>&copy; 2025 BY AGASOBANUYE DAY — Uburenganzira bwose burabitswe.</p>
+</footer>
+
+<script>
+  const ADMIN_EMAIL = 'byishimoyvande@gmail.com';
+  const STORAGE_USERS_KEY = 'agasobanuyeday_users';
+  const STORAGE_SESSION_KEY = 'agasobanuyeday_session';
+  const STORAGE_VIDEOS_KEY = 'agasobanuyeday_videos';
+
+  let authMode = 'signin';
+  let videos = [];
+  let selectedPaymentType = null;
+  let currentVideo = null;
+
+  function loadUsers() {
+    return JSON.parse(localStorage.getItem(STORAGE_USERS_KEY) || '[]');
+  }
+  function saveUsers(users) {
+    localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
+  }
+  function loadSession() {
+    return JSON.parse(localStorage.getItem(STORAGE_SESSION_KEY) || 'null');
+  }
+  function saveSession(session) {
+    localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(session));
+  }
+  function loadVideos() {
+    return JSON.parse(localStorage.getItem(STORAGE_VIDEOS_KEY) || '[]');
+  }
+  function saveVideos(vs) {
+    localStorage.setItem(STORAGE_VIDEOS_KEY, JSON.stringify(vs));
+  }
+  function getCurrentUser() {
+    const session = loadSession();
+    if(!session || !session.email) return null;
+    const users = loadUsers();
+    return users.find(u => u.email === session.email) || null;
+  }
+
+  function initVideos() {
+    let stored = loadVideos();
+    if(stored.length === 0) {
+      const initialVideos = [
+        {
+          title: 'Squid Game S03E01',
+          videoUrl: 'https://archive.org/download/squid-game-s-03-e-01/SQUID%20GAME%20S03E01.mp4',
+          thumbnail: 'https://upload.wikimedia.org/wikipedia/en/e/e1/Squid_Game_season_3_poster.png',
+          section: 'series'
+        },
+        {
+          title: 'Squid Game S03E02',
+          videoUrl: 'https://archive.org/download/squid-game-s-03-e-01/SQUID%20GAME%20S03E02.mp4',
+          thumbnail: 'https://upload.wikimedia.org/wikipedia/en/e/e1/Squid_Game_season_3_poster.png',
+          section: 'series'
+        },
+        {
+          title: 'Squid Game S03E03',
+          videoUrl: 'https://archive.org/download/squid-game-s-03-e-01/SQUID%20GAME%20S03E03.mp4',
+          thumbnail: 'https://upload.wikimedia.org/wikipedia/en/e/e1/Squid_Game_season_3_poster.png',
+          section: 'series'
+        },
+        {
+          title: 'Squid Game S03E04',
+          videoUrl: 'https://archive.org/download/squid-game-s-03-e-01/SQUID%20GAME%20S03E04.mp4',
+          thumbnail: 'https://upload.wikimedia.org/wikipedia/en/e/e1/Squid_Game_season_3_poster.png',
+          section: 'series'
+        },
+        {
+          title: 'Kesari 2',
+          videoUrl: 'https://archive.org/download/agasobanuye-now-com-kesari-2-rocky/Kesari%202.mp4',
+          thumbnail: 'https://thedailyguardian.com/wp-content/uploads/2025/04/kesari-2.webp',
+          section: 'movies'
+        }
+      ];
+      saveVideos(initialVideos);
+      return initialVideos;
+    }
+    // Fix Kesari 2 video URL if needed (migration for existing users)
+    let changed = false;
+    stored = stored.map(v => {
+      if (
+        v.section === 'movies' &&
+        v.title.trim().toLowerCase() === 'kesari 2'
+      ) {
+        if (v.videoUrl !== 'https://archive.org/download/agasobanuye-now-com-kesari-2-rocky/Kesari%202.mp4') {
+          v.videoUrl = 'https://archive.org/download/agasobanuye-now-com-kesari-2-rocky/Kesari%202.mp4';
+          changed = true;
+        }
+      }
+      return v;
+    });
+    if (changed) saveVideos(stored);
+    return stored;
+  }
+
+  function renderVideos(section, containerId) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    const vids = videos.filter(v => v.section === section);
+    const admin = getCurrentUser() && getCurrentUser().email === ADMIN_EMAIL;
+    vids.forEach((v, idx) => {
+      const card = document.createElement('div');
+      card.className = 'card' + (admin ? ' admin' : '');
+      card.innerHTML = `
+        <img src="${v.thumbnail}" alt="${v.title}" />
+        <p><strong>${v.title}</strong></p>
+        ${admin ? `<button class="delete-btn" onclick="deleteVideo('${section}',${idx},event)" title="Siba">×</button>` : ""}
+      `;
+      card.onclick = (e) => {
+        // Prevent card click if delete was clicked
+        if (e.target.classList.contains('delete-btn')) return;
+        handleVideoClick(v);
+      };
+      container.appendChild(card);
+    });
+  }
+
+  function renderHomeAndTrending() {
+    const containerHome = document.getElementById('homeVideos');
+    const containerTrending = document.getElementById('trendingVideos');
+    containerHome.innerHTML = '';
+    containerTrending.innerHTML = '';
+    const admin = getCurrentUser() && getCurrentUser().email === ADMIN_EMAIL;
+    videos.forEach((v, idx) => {
+      // Home
+      const cardHome = document.createElement('div');
+      cardHome.className = 'card' + (admin ? ' admin' : '');
+      cardHome.innerHTML = `
+        <img src="${v.thumbnail}" alt="${v.title}" />
+        <p><strong>${v.title}</strong></p>
+        ${admin ? `<button class="delete-btn" onclick="deleteVideo('${v.section}',${videos.indexOf(v)},event)" title="Siba">×</button>` : ""}
+      `;
+      cardHome.onclick = (e) => {
+        if (e.target.classList.contains('delete-btn')) return;
+        handleVideoClick(v);
+      };
+      containerHome.appendChild(cardHome);
+
+      // Trending
+      const cardTrend = cardHome.cloneNode(true);
+      cardTrend.onclick = (e) => {
+        if (e.target.classList.contains('delete-btn')) return;
+        handleVideoClick(v);
+      };
+      // Must update delete button event for cloned node
+      if (admin) {
+        cardTrend.querySelector('.delete-btn').onclick = (ev) => deleteVideo(v.section, videos.indexOf(v), ev);
+      }
+      containerTrending.appendChild(cardTrend);
+    });
+  }
+
+  function showSection(id) {
+    ['home','trending','series','movies','admin'].forEach(sid => {
+      document.getElementById(sid).style.display = sid === id ? 'block' : 'none';
+    });
+    if(id !== 'admin') {
+      document.getElementById('upload-section').style.display = 'none';
+    }
+  }
+
+  function showUploadForm(section) {
+    const user = getCurrentUser();
+    if(!user || user.email !== ADMIN_EMAIL) {
+      alert('Ntubifitiye uburenganzira.');
+      return;
+    }
+    document.getElementById('upload-section').style.display = 'block';
+    document.getElementById('upload-section-select').value = section;
+    showSection('admin');
+  }
+  function hideUploadForm() {
+    document.getElementById('upload-section').style.display = 'none';
+  }
+
+  function handleVideoClick(video) {
+    const user = getCurrentUser();
+    currentVideo = video;
+    if(!user) {
+      openAuthPopup('signin');
+      alert('Nyamuneka winjire cyangwa wiyandikishe mbere yo kureba videwo.');
+      return;
+    }
+    if(user.email === ADMIN_EMAIL) {
+      openVideoPopup(video.videoUrl);
+      return;
+    }
+    if(!user.paidUntil || user.paidUntil < Date.now()) {
+      if(user.pendingPayment) {
+        alert('Kwishyura kwawe biri gutegerezwaho kwemezwa na admin. Tegereza gato.');
+      } else {
+        openPaymentPopup();
+        alert('Ugomba kwishyura kugirango urebe videwo.');
+      }
+      return;
+    }
+    openVideoPopup(video.videoUrl);
+  }
+
+  function openVideoPopup(url) {
+    const videoPlayer = document.getElementById('videoPlayer');
+    videoPlayer.src = url;
+    document.getElementById('videoPopup').style.display = 'flex';
+  }
+  function closeVideo() {
+    const videoPlayer = document.getElementById('videoPlayer');
+    videoPlayer.pause();
+    videoPlayer.src = '';
+    document.getElementById('videoPopup').style.display = 'none';
+  }
+
+  function openAuthPopup(mode) {
+    authMode = mode;
+    document.getElementById('authPopup').style.display = 'flex';
+    document.getElementById('authTitle').textContent = mode === 'signin' ? 'Injira' : 'Iyandikishe';
+    document.getElementById('authSwitchText').textContent = mode === 'signin' ? "Nta konti ufite? Iyandikishe" : "Ufite konti? Injira";
+    document.getElementById('auth-username').style.display = mode === 'signup' ? 'block' : 'none';
+  }
+  function closeAuth() {
+    document.getElementById('authPopup').style.display = 'none';
+  }
+  function toggleAuthMode() {
+    openAuthPopup(authMode === 'signin' ? 'signup' : 'signin');
+  }
+  function submitAuth() {
+    const email = document.getElementById('auth-email').value.trim().toLowerCase();
+    const password = document.getElementById('auth-password').value.trim();
+    const username = document.getElementById('auth-username').value.trim();
+    if(!email || !password || (authMode==='signup' && !username)) {
+      alert('Uzuzuze amakuru yose.');
+      return;
+    }
+    let users = loadUsers();
+    if(authMode === 'signup') {
+      if(users.some(u => u.email === email)) {
+        alert('Email ikoreshwa na konti indi. Injira cyangwa ukoreshe email nshya.');
+        return;
+      }
+      users.push({email, username, password, paidUntil:null, pendingPayment:null});
+      saveUsers(users);
+      alert('Wiyandikishije neza! Noneho winjire.');
+      openAuthPopup('signin');
+    } else {
+      const user = users.find(u => u.email === email && u.password === password);
+      if(!user) {
+        alert('Email cyangwa ijambo ry\'ibanga si byo.');
+        return;
+      }
+      saveSession({email: user.email});
+      alert('Winjiye neza!');
+      updateNav();
+      closeAuth();
+      renderAll();
+      showSection('home');
+    }
+  }
+  function logout() {
+    localStorage.removeItem(STORAGE_SESSION_KEY);
+    alert('Wasohotse!');
+    updateNav();
+    showSection('home');
+  }
+
+  function updateNav() {
+    const user = getCurrentUser();
+    document.getElementById('loginNav').style.display = user ? 'none' : 'inline';
+    document.getElementById('logoutNav').style.display = user ? 'inline' : 'none';
+    document.getElementById('adminNav').style.display = (user && user.email === ADMIN_EMAIL) ? 'inline' : 'none';
+    if(user && user.email === ADMIN_EMAIL) {
+      document.getElementById('addSeriesBtn').style.display = 'inline-block';
+      document.getElementById('addMoviesBtn').style.display = 'inline-block';
+    } else {
+      document.getElementById('addSeriesBtn').style.display = 'none';
+      document.getElementById('addMoviesBtn').style.display = 'none';
+    }
+  }
+
+  // Only admin can delete video!
+  function deleteVideo(section, idx, ev) {
+    ev.stopPropagation();
+    const user = getCurrentUser();
+    if (!user || user.email !== ADMIN_EMAIL) {
+      alert('Ntubifitiye uburenganzira bwo gusiba video.');
+      return;
+    }
+    if(!confirm('Urashaka gusiba iyi video?')) return;
+    // Actually, idx is in the filtered list, so we need to map it to the videos array
+    const filtered = videos.map((v, i) => ({v, i})).filter(obj => obj.v.section === section);
+    const videoIdxInMain = filtered[idx]?.i;
+    if(videoIdxInMain !== undefined) {
+      videos.splice(videoIdxInMain, 1);
+      saveVideos(videos);
+      renderAll();
+      alert('Video yasibwe.');
+    }
+  }
+
+  function openPaymentPopup() {
+    selectedPaymentType = null;
+    document.getElementById('paymentPopup').style.display = 'flex';
+    document.getElementById('confirmPaymentBtn').style.display = 'none';
+    document.getElementById('paymentInstruction').textContent = 'Hitamo uburyo bwo kwishyura hepfo.';
+  }
+  function closePayment() {
+    document.getElementById('paymentPopup').style.display = 'none';
+  }
+  function showPaymentInstructions(plan) {
+    selectedPaymentType = plan;
+    const text = plan === 'weekly' ?
+      `Ohereza 1,500 RWF kuri MTN MoMo 0799395838 cyangwa Airtel Money 0722461585. Hanyuma ukande "Emeza ko wishyuye".` :
+      `Ohereza 4,000 RWF kuri MTN MoMo 0799395838 cyangwa Airtel Money 0722461585. Hanyuma ukande "Emeza ko wishyuye".`;
+    document.getElementById('paymentInstruction').textContent = text;
+    document.getElementById('confirmPaymentBtn').style.display = 'inline-block';
+  }
+  function confirmPayment() {
+    const user = getCurrentUser();
+    if(!user) {
+      alert('Ntimuri kwiyandikisha.');
+      return;
+    }
+    if(!selectedPaymentType) {
+      alert('Ntimwahisemo uburyo bwo kwishyura.');
+      return;
+    }
+    let users = loadUsers();
+    let u = users.find(x => x.email === user.email);
+    if(!u) {
+      alert('User ntabwo yabonetse.');
+      return;
+    }
+    u.pendingPayment = selectedPaymentType;
+    saveUsers(users);
+    alert('Ubutumwa bwawe bwo kwishyura bwakiriwe, tegereza ko admin ayemeza.');
+    closePayment();
+    renderPendingApprovals();
+  }
+
+  function approvePayment(email) {
+    let users = loadUsers();
+    let u = users.find(x => x.email === email);
+    if(!u) return;
+    if(!u.pendingPayment) return;
+    const now = Date.now();
+    const durationMs = u.pendingPayment === 'weekly' ? 7*24*60*60*1000 : 30*24*60*60*1000;
+    u.paidUntil = now + durationMs;
+    u.pendingPayment = null;
+    saveUsers(users);
+    alert(`Kwemeza kwishyura kwa ${email} byemejwe, uburenganzira bwahawe.`);
+    renderPendingApprovals();
+    renderPaidUsersTable();
+  }
+
+  function renderPendingApprovals() {
+    const tbody = document.getElementById('pendingApprovalsTableBody');
+    tbody.innerHTML = '';
+    const users = loadUsers();
+    users.filter(u => u.pendingPayment).forEach(u => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${u.email}</td>
+        <td>${u.username}</td>
+        <td>${u.pendingPayment}</td>
+        <td><button onclick="approvePayment('${u.email}')">Emeza</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderPaidUsersTable() {
+    const tbody = document.getElementById('paidUsersTableBody');
+    tbody.innerHTML = '';
+    const users = loadUsers();
+    const now = Date.now();
+    users.filter(u => u.paidUntil && u.paidUntil > now).forEach(u => {
+      const plan = (u.paidUntil - now) > 20*24*60*60*1000 ? 'Ukwezi' : 'Icyumweru';
+      const expireDate = new Date(u.paidUntil).toLocaleString();
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${u.email}</td>
+        <td>${u.username}</td>
+        <td>${plan}</td>
+        <td>${expireDate}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function uploadVideo() {
+    const user = getCurrentUser();
+    if(!user || user.email !== ADMIN_EMAIL) {
+      alert('Ntubifitiye uburenganzira.');
+      return;
+    }
+    const section = document.getElementById('upload-section-select').value;
+    const title = document.getElementById('upload-title').value.trim();
+    const videoUrl = document.getElementById('upload-video-url').value.trim();
+    const thumbnail = document.getElementById('upload-thumbnail').value.trim();
+    if(!title || !videoUrl || !thumbnail) {
+      alert('Uzuzuze amakuru yose yo kongeraho video.');
+      return;
+    }
+    videos.push({title, videoUrl, thumbnail, section});
+    saveVideos(videos);
+    alert('Video yongewemo neza.');
+    document.getElementById('upload-title').value = '';
+    document.getElementById('upload-video-url').value = '';
+    document.getElementById('upload-thumbnail').value = '';
+    renderAll();
+  }
+
+  function renderAll() {
+    renderVideos('series', 'seriesList');
+    renderVideos('movies', 'movieList');
+    renderVideos('trending', 'trendingVideos');
+    renderHomeAndTrending();
+    updateNav();
+    if(getCurrentUser() && getCurrentUser().email === ADMIN_EMAIL) {
+      renderPendingApprovals();
+      renderPaidUsersTable();
+    }
+  }
+
+  // Listen for storage changes and update admin view if logged in as admin
+  window.addEventListener('storage', function(e) {
+    if (getCurrentUser() && getCurrentUser().email === ADMIN_EMAIL) {
+      if (e.key === STORAGE_USERS_KEY || e.key === STORAGE_VIDEOS_KEY) {
+        renderPendingApprovals();
+        renderPaidUsersTable();
+      }
+    }
+  });
+
+  // On load
+  window.onload = () => {
+    videos = initVideos();
+    updateNav();
+    showSection('home');
+    renderAll();
+  };
+</script>
+
+</body>
+</html>
